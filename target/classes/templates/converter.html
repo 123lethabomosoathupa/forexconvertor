@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8">
+  <title>Forex Exchange</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at 50% 0%, #f3eefa 0%, #faf8fd 50%, #f3eefa 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Poppins', 'Segoe UI', sans-serif; padding: 20px;
+    }
+    .card {
+      background: #ffffff; border-radius: 20px; padding: 40px;
+      width: 100%; max-width: 700px; position: relative; overflow: hidden;
+      box-shadow: 0 12px 40px rgba(91,44,134,0.1); border: 1px solid #ece3f8;
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+      background: linear-gradient(90deg, #5b2c86, #8b5fbf);
+    }
+    .top-bar { display: flex; justify-content: space-between;
+               align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 10px; }
+    h1 { color: #3f1d61; font-size: 2rem; font-weight: 700; }
+    .nav-links { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .nav-link { color: #5b2c86; text-decoration: none; font-size: 0.85rem;
+                border: 1px solid #5b2c86; border-radius: 20px; padding: 6px 14px;
+                font-weight: 600; transition: background 0.2s, color 0.2s; }
+    .nav-link:hover { background: #5b2c86; color: #fff; }
+    .logout-btn { color: #dc2626; background: transparent; border: 1px solid #dc2626;
+                  border-radius: 20px; padding: 6px 14px; cursor: pointer; font-size: 0.85rem;
+                  font-weight: 600; }
+    .user-label { color: #6b6478; font-size: 0.85rem; font-weight: 600; }
+    .subtitle { color: #6b6478; margin-bottom: 28px; font-size: 0.9rem; }
+    .row { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+    .field { display: flex; flex-direction: column; flex: 1; min-width: 130px; }
+    label { color: #6b6478; font-size: 0.8rem; text-transform: uppercase;
+            letter-spacing: 0.05em; margin-bottom: 6px; }
+    input, select { padding: 12px; border-radius: 10px; border: 1px solid #ddd2ef;
+                    background: #faf8fd; color: #1f1b2e; font-size: 1rem; outline: none; }
+    input:focus, select:focus { border-color: #8b5fbf; background: #ffffff; }
+    .btn { width: 100%; padding: 14px; background: #5b2c86; color: #fff;
+           border: none; border-radius: 12px; font-size: 1rem;
+           font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    .btn:hover { background: #3f1d61; }
+    .result-card { margin-top: 24px; background: #f3eefa; border-radius: 14px;
+                   padding: 20px 24px; border: 1px solid #ddc8f5; }
+    .result-main { color: #1f1b2e; font-size: 1.4rem; margin-bottom: 6px; }
+    .result-sub  { color: #6b6478; font-size: 0.9rem; margin-bottom: 14px; }
+    .sparkline-wrap { margin-top: 10px; }
+    .sparkline-label { color: #8b85a0; font-size: 0.75rem; margin-bottom: 4px; }
+    .sparkline-wrap img { display: block; border-radius: 6px;
+                          border: 1px solid #ddc8f5; width: 300px; height: 80px; background: #fff; }
+    .error { margin-top: 16px; color: #b91c1c; background: #fdecec;
+             padding: 12px; border-radius: 8px; font-size: 0.9rem; }
+    .alert-banner { background: #f3eefa; border: 1px solid #c9a6e8; border-radius: 8px;
+                    padding: 12px 16px; margin-bottom: 8px;
+                    color: #3f1d61; font-size: 0.9rem; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="top-bar">
+      <h1>Forex Exchange</h1>
+      <div class="nav-links">
+        <span class="user-label">👤 <span sec:authentication="name"></span></span>
+        <a href="/dashboard" class="nav-link">📊 Dashboard</a>
+        <a href="/history"   class="nav-link">History</a>
+        <a href="/charts"    class="nav-link">📈 Charts</a>
+        <a href="/alerts"    class="nav-link">🔔 Alerts</a>
+        <form method="post" th:action="@{/logout}" style="margin:0;">
+          <button type="submit" class="logout-btn">Logout</button>
+        </form>
+      </div>
+    </div>
+    <p class="subtitle">Live currency converter</p>
+
+    <!-- Triggered alert banners -->
+    <div th:if="${triggeredAlerts}">
+      <div th:each="alert : ${triggeredAlerts}" class="alert-banner">
+        🔔 Alert triggered:
+        <strong th:text="${alert.fromCurrency + '/' + alert.toCurrency}"></strong>
+        rate went <strong th:text="${alert.direction}"></strong>
+        your target of <strong th:text="${alert.targetRate}"></strong>
+      </div>
+    </div>
+
+    <form method="post" th:action="@{/converter}">
+      <div class="row">
+        <div class="field">
+          <label for="amount">Amount</label>
+          <input type="number" id="amount" name="amount" step="0.01"
+                 placeholder="e.g. 100" th:value="${amount}" required>
+        </div>
+        <div class="field">
+          <label for="from">From</label>
+          <select id="from" name="from">
+            <option th:each="c : ${currencies}" th:value="${c}" th:text="${c}"
+                    th:selected="${c == selectedFrom}"></option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="to">To</label>
+          <select id="to" name="to">
+            <option th:each="c : ${currencies}" th:value="${c}" th:text="${c}"
+                    th:selected="${c == selectedTo}"></option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn">Convert</button>
+    </form>
+
+    <div th:if="${error}" class="error" th:text="${error}"></div>
+
+    <div th:if="${result}" class="result-card">
+      <p class="result-main">
+        <span th:text="${result.amount}"></span>
+        <span th:text="${result.fromCurrency}"></span> =
+        <strong>
+          <span th:text="${result.convertedAmount}"></span>
+          <span th:text="${result.toCurrency}"></span>
+        </strong>
+      </p>
+      <p class="result-sub">
+        Rate: 1 <span th:text="${result.fromCurrency}"></span>
+        = <span th:text="${result.rate}"></span>
+        <span th:text="${result.toCurrency}"></span>
+      </p>
+      <div class="sparkline-wrap" th:if="${showSparkline}">
+        <p class="sparkline-label">
+          Rate trend —
+          <span th:text="${result.fromCurrency}"></span>/
+          <span th:text="${result.toCurrency}"></span>
+          (last 30 conversions)
+        </p>
+        <img th:src="@{/sparkline(from=${result.fromCurrency},to=${result.toCurrency})}"
+             alt="Rate sparkline">
+      </div>
+    </div>
+  </div>
+</body>
+</html>

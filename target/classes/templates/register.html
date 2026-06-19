@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Forex — Register</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at 80% 0%, #f3eefa 0%, #faf8fd 45%, #f3eefa 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Poppins', 'Segoe UI', sans-serif;
+    }
+    .card {
+      background: #ffffff; border-radius: 20px; padding: 40px;
+      width: 100%; max-width: 400px; position: relative; overflow: hidden;
+      box-shadow: 0 12px 40px rgba(91,44,134,0.12); border: 1px solid #ece3f8;
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+      background: linear-gradient(90deg, #5b2c86, #8b5fbf);
+    }
+    h1 { color: #3f1d61; font-size: 1.8rem; margin-bottom: 6px; font-weight: 700; }
+    p  { color: #6b6478; font-size: 0.9rem; margin-bottom: 24px; }
+    label { color: #6b6478; font-size: 0.8rem; text-transform: uppercase;
+            letter-spacing: 0.05em; display: block; margin-bottom: 6px; }
+    input {
+      width: 100%; padding: 12px; border-radius: 10px;
+      border: 1px solid #ddd2ef; background: #faf8fd;
+      color: #1f1b2e; font-size: 1rem; outline: none; margin-bottom: 16px;
+    }
+    input:focus { border-color: #8b5fbf; background: #ffffff; }
+    .btn { width: 100%; padding: 13px; background: #5b2c86; color: #fff;
+           border: none; border-radius: 10px; font-size: 1rem;
+           font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    .btn:hover { background: #3f1d61; }
+    .msg-error { color: #b91c1c; background: #fdecec; padding: 10px;
+                 border-radius: 8px; margin-bottom: 14px; font-size: 0.9rem; }
+    .link { color: #5b2c86; text-align: center; margin-top: 16px;
+            font-size: 0.9rem; display: block; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Create Account</h1>
+    <p>Register to use Forex Exchange</p>
+
+    <div th:if="${errorMsg}" class="msg-error" th:text="${errorMsg}"></div>
+
+    <form method="post" th:action="@{/register}">
+      <label>Username</label>
+      <input type="text" name="username" required autofocus>
+      <label>Password</label>
+      <input type="password" name="password" required>
+      <button type="submit" class="btn">Register</button>
+    </form>
+
+    <a href="/login" class="link">Already have an account? Sign in</a>
+  </div>
+</body>
+</html>
