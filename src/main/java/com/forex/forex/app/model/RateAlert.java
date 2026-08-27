@@ -1,47 +1,50 @@
 package com.forex.forexapp.model;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.index.Indexed;
 
-@Entity
-@Table(name = "rate_alerts")
+@Document(collection = "rate_alerts")
 public class RateAlert {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;          // MongoDB ObjectId — String, not Long
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private AppUser user;
+    // Store user ID and email directly instead of a @ManyToOne reference
+    // MongoDB has no foreign keys — embed the identity from the user object
+    @Indexed
+    private String userId;
+    private String userEmail;
 
-    @Column(name = "from_currency", nullable = false, length = 10)
+    @Field("from_currency")
     private String fromCurrency;
 
-    @Column(name = "to_currency", nullable = false, length = 10)
+    @Field("to_currency")
     private String toCurrency;
 
-    @Column(name = "target_rate", nullable = false)
+    @Field("target_rate")
     private double targetRate;
 
-    @Column(nullable = false, length = 10)
     private String direction;
 
-    @Column(nullable = false)
     private boolean triggered = false;
 
     public RateAlert() {}
 
     public RateAlert(AppUser user, String fromCurrency, String toCurrency,
                      double targetRate, String direction) {
-        this.user         = user;
+        this.userId       = user.getId();
+        this.userEmail    = user.getEmail();
         this.fromCurrency = fromCurrency;
         this.toCurrency   = toCurrency;
         this.targetRate   = targetRate;
         this.direction    = direction;
     }
 
-    public Long    getId()           { return id; }
-    public AppUser getUser()         { return user; }
+    public String  getId()           { return id; }
+    public String  getUserId()       { return userId; }
+    public String  getUserEmail()    { return userEmail; }
     public String  getFromCurrency() { return fromCurrency; }
     public String  getToCurrency()   { return toCurrency; }
     public double  getTargetRate()   { return targetRate; }
