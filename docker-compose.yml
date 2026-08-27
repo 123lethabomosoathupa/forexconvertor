@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+
+  # ── MongoDB ──────────────────────────────────────────────────────────────────
+  mongodb:
+    image: mongo:7
+    container_name: forex-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: forex_transactions
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    # Single-node replica set — required for transactions (@Transactional)
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Initialises the replica set on first boot
+  mongo-init:
+    image: mongo:7
+    container_name: forex-mongo-init
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: "no"
+    entrypoint: >
+      mongosh --host mongodb:27017 -u root -p root --authenticationDatabase admin --eval
+      "rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'mongodb:27017' }] })"
+
+  # ── Mongo Express (web UI — like pgAdmin for MongoDB) ─────────────────────────
+  mongo-express:
+    image: mongo-express:latest
+    container_name: forex-mongo-express
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: root
+      ME_CONFIG_MONGODB_URL: mongodb://root:root@mongodb:27017/
+      ME_CONFIG_BASICAUTH: false
+    ports:
+      - "8081:8081"      # http://localhost:8081
+    depends_on:
+      - mongodb
+
+  # ── Transaction Service ────────────────────────────────────────────────────
+  transaction-service:
+    build: .
+    container_name: forex-transaction-service
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://root:root@mongodb:27017/forex_transactions?authSource=admin&replicaSet=rs0
+      APP_JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+    ports:
+      - "8082:8082"
+    depends_on:
+      - mongo-init
+
+volumes:
+  mongo_data:
