@@ -97,6 +97,22 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- Add this inside <dependencies> in pom.xml, alongside spring-boot-starter-web -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+</dependency>
+
+<!-- Needed for sec:authentication="name" in your templates (converter.html, dashboard.html) -->
+<dependency>
+    <groupId>org.thymeleaf.extras</groupId>
+    <artifactId>thymeleaf-extras-springsecurity6</artifactId>
+    <version>3.1.2.RELEASE</version>
+</dependency>
+
+<!-- Needed to hash passwords for the User collection -->
+<!-- (spring-boot-starter-security already provides BCryptPasswordEncoder, no new dep needed) -->
+
   </dependencies>
 
   <build>
