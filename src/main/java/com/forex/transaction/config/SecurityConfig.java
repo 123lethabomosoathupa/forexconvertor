@@ -25,8 +25,6 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final WebUserDetailsService   webUserDetailsService;
 
-    // ── 1. Stateless API chain ─────────────────────────────────────────────────
-
     @Bean
     @Order(1)
     public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
@@ -35,14 +33,13 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/v1/rates/**").permitAll()
                         .requestMatchers("/api/v1/transactions/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
-
-    // ── 2. Session-based web UI chain ─────────────────────────────────────────
 
     @Bean
     @Order(2)
