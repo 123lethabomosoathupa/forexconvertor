@@ -46,6 +46,9 @@ public class SecurityConfig {
     public SecurityFilterChain webFilterChain(HttpSecurity http) throws Exception {
         return http
                 .userDetailsService(webUserDetailsService)
+                // Disable CSRF — safe for a session-based same-origin web app
+                // Also fixes logout POST being blocked by CSRF token mismatch
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/", "/login", "/register",
