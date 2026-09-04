@@ -37,29 +37,15 @@ public class TransactionService {
     private final TransactionRepository repo;
     private final MongoTemplate         mongo;
 
-    // ── Resolve userId from either JWT principal or web session ───────────────
+    // ── Resolve userId + email from JWT or web session principal ──────────────
 
-    /**
-     * Derives a stable Long userId from whatever principal is in the SecurityContext.
-     *
-     * - JWT API call:  ForexUserPrincipal already carries a Long userId.
-     * - Web UI call:   UserDetails.getUsername() is the Mongo username string;
-     *                  we hash it to a stable Long so history queries are consistent.
-     */
     public static Long resolveUserId(Authentication auth) {
         if (auth == null) throw new IllegalStateException("Not authenticated");
-
         Object principal = auth.getPrincipal();
-
-        if (principal instanceof ForexUserPrincipal fp) {
-            return fp.getUserId();
-        }
-
+        if (principal instanceof ForexUserPrincipal fp) return fp.getUserId();
         if (principal instanceof UserDetails ud) {
-            // Deterministic hash of username → stable Long (same user always gets same id)
             return (long) ud.getUsername().hashCode() & 0xFFFFFFFFL;
         }
-
         throw new IllegalStateException("Unknown principal type: " + principal.getClass());
     }
 
@@ -101,14 +87,14 @@ public class TransactionService {
                 .build();
 
         Transaction saved = repo.save(tx);
-        log.info("Transaction {} — userId={} {}→{} amount={}",
+        log.info("Transaction {} saved — userId={} {}→{} amount={}",
                 saved.getId(), userId,
                 request.fromCurrency(), request.toCurrency(), request.amount());
 
         return toResponse(saved);
     }
 
-    // ── Get single ─────────────────────────────────────────────────────────────
+    // ── Get single (user must own it) ──────────────────────────────────────────
 
     public TransactionResponse getById(String id, Authentication auth) {
         Long userId = resolveUserId(auth);
@@ -150,29 +136,44 @@ public class TransactionService {
 
         long count = repo.countByUserId(userId);
 
-        // Use MongoTemplate aggregation to avoid Spring Data @Aggregation projection bug
-        Aggregation agg = Aggregation.newAggregation(
-                Aggregation.match(
-                        Criteria.where("userId").is(userId)
-                                .and("status").is(Status.COMPLETED.name())
-                ),
-                Aggregation.group().sum("sourceAmount").as("total")
-        );
-        AggregationResults<Document> results =
-                mongo.aggregate(agg, "transactions", Document.class);
+        // Sum via MongoTemplate — avoids Spring Data @Aggregation projection NPE bug
+        BigDecimal volume = BigDecimal.ZERO;
+        try {
+            Aggregation agg = Aggregation.newAggregation(
+                    Aggregation.match(
+                            Criteria.where("userId").is(userId)
+                                    .and("status").is("COMPLETED")
+                    ),
+                    Aggregation.group().sum("sourceAmount").as("total")
+            );
+            AggregationResults<Document> results =
+                    mongo.aggregate(agg, "transactions", Document.class);
 
-        BigDecimal volume = Optional.ofNullable(results.getUniqueMappedResult())
-                .map(doc -> doc.get("total"))
-                .map(v -> new BigDecimal(v.toString()))
-                .orElse(BigDecimal.ZERO);
+            volume = Optional.ofNullable(results.getUniqueMappedResult())
+                    .map(doc -> doc.get("total"))
+                    .map(v -> new BigDecimal(v.toString()))
+                    .orElse(BigDecimal.ZERO);
+        } catch (Exception e) {
+            log.warn("Could not compute total volume: {}", e.getMessage());
+        }
 
-        String topPair = repo.findTopPairByUserId(userId)
-                .map(p -> p.get_id().getFrom() + "/" + p.get_id().getTo())
-                .orElse("N/A");
+        String topPair = "N/A";
+        try {
+            topPair = repo.findTopPairByUserId(userId)
+                    .map(p -> p.get_id().getFrom() + "/" + p.get_id().getTo())
+                    .orElse("N/A");
+        } catch (Exception e) {
+            log.warn("Could not compute top pair: {}", e.getMessage());
+        }
 
-        var lastAt = repo.findLastTransactionAt(userId)
-                .map(TransactionRepository.InstantWrapper::getCreatedAt)
-                .orElse(null);
+        java.time.Instant lastAt = null;
+        try {
+            lastAt = repo.findLastTransactionAt(userId)
+                    .map(TransactionRepository.InstantWrapper::getCreatedAt)
+                    .orElse(null);
+        } catch (Exception e) {
+            log.warn("Could not compute last transaction time: {}", e.getMessage());
+        }
 
         return new UserStatsResponse(userId, userEmail, count, volume, topPair, lastAt);
     }
