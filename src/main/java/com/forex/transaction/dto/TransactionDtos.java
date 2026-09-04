@@ -11,8 +11,6 @@ public final class TransactionDtos {
 
     private TransactionDtos() {}
 
-    // ── Create request ─────────────────────────────────────────────────────────
-
     public record ConvertRequest(
 
         @NotBlank(message = "fromCurrency is required")
@@ -34,7 +32,7 @@ public final class TransactionDtos {
         @DecimalMin(value = "0.000001", message = "Rate must be positive")
         BigDecimal exchangeRate,
 
-        String notes   // optional
+        String notes
 
     ) {
         public void validate() {
@@ -44,10 +42,8 @@ public final class TransactionDtos {
         }
     }
 
-    // ── Single transaction response ────────────────────────────────────────────
-
     public record TransactionResponse(
-        String id,              // MongoDB ObjectId string
+        String id,
         Long userId,
         String userEmail,
         String fromCurrency,
@@ -61,8 +57,6 @@ public final class TransactionDtos {
         String notes
     ) {}
 
-    // ── Paginated wrapper ──────────────────────────────────────────────────────
-
     public record PagedResponse<T>(
         List<T> content,
         int page,
@@ -72,8 +66,6 @@ public final class TransactionDtos {
         boolean first,
         boolean last
     ) {}
-
-    // ── Filter params (query string on GET /history) ───────────────────────────
 
     public record TransactionFilter(
         String from,
@@ -90,18 +82,14 @@ public final class TransactionDtos {
         }
     }
 
-    // ── Stats ──────────────────────────────────────────────────────────────────
-
     public record UserStatsResponse(
         Long userId,
         String userEmail,
         long totalTransactions,
         BigDecimal totalSourceVolume,
-        String topPair,            // e.g. "USD/ZAR"
+        String topPair,
         Instant lastTransactionAt
     ) {}
-
-    // ── Error ──────────────────────────────────────────────────────────────────
 
     public record ErrorResponse(
         int status,

@@ -1,65 +1,43 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Forex — Login</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Login — Forex App</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      min-height: 100vh;
-      background: radial-gradient(circle at 20% 0%, #f3eefa 0%, #faf8fd 45%, #f3eefa 100%);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Poppins', 'Segoe UI', sans-serif;
-    }
-    .card {
-      background: #ffffff; border-radius: 20px; padding: 40px;
-      width: 100%; max-width: 400px; position: relative; overflow: hidden;
-      box-shadow: 0 12px 40px rgba(91,44,134,0.12); border: 1px solid #ece3f8;
-    }
-    .card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
-      background: linear-gradient(90deg, #5b2c86, #8b5fbf);
-    }
-    h1 { color: #3f1d61; font-size: 1.8rem; margin-bottom: 6px; font-weight: 700; }
-    p  { color: #6b6478; font-size: 0.9rem; margin-bottom: 24px; }
-    label { color: #6b6478; font-size: 0.8rem; text-transform: uppercase;
-            letter-spacing: 0.05em; display: block; margin-bottom: 6px; }
-    input {
-      width: 100%; padding: 12px; border-radius: 10px;
-      border: 1px solid #ddd2ef; background: #faf8fd;
-      color: #1f1b2e; font-size: 1rem; outline: none; margin-bottom: 16px;
-    }
-    input:focus { border-color: #8b5fbf; background: #ffffff; }
-    .btn { width: 100%; padding: 13px; background: #5b2c86; color: #fff;
-           border: none; border-radius: 10px; font-size: 1rem;
-           font-weight: bold; cursor: pointer; transition: background 0.2s; }
-    .btn:hover { background: #3f1d61; }
-    .msg-error   { color: #b91c1c; background: #fdecec; padding: 10px;
-                   border-radius: 8px; margin-bottom: 14px; font-size: 0.9rem; }
-    .msg-success { color: #15803d; background: #ecfdf3; padding: 10px;
-                   border-radius: 8px; margin-bottom: 14px; font-size: 0.9rem; }
-    .link { color: #5b2c86; text-align: center; margin-top: 16px;
-            font-size: 0.9rem; display: block; font-weight: 600; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .card { background: #fff; border-radius: 12px; padding: 40px; width: 100%; max-width: 380px; box-shadow: 0 2px 16px rgba(0,0,0,.08); }
+    h1 { font-size: 22px; font-weight: 600; margin-bottom: 24px; }
+    label { display: block; font-size: 13px; color: #555; margin-bottom: 4px; margin-top: 16px; }
+    input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+    button { width: 100%; margin-top: 24px; padding: 11px; background: #111; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
+    button:hover { background: #333; }
+    .msg { margin-top: 14px; font-size: 13px; padding: 10px 12px; border-radius: 6px; }
+    .error { background: #fef2f2; color: #991b1b; }
+    .success { background: #f0fdf4; color: #166534; }
+    .footer { margin-top: 20px; text-align: center; font-size: 13px; color: #777; }
+    a { color: #111; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Forex Exchange</h1>
-    <p>Sign in to your account</p>
+<div class="card">
+  <h1>Sign in</h1>
+  <div th:if="${errorMsg}"  class="msg error"   th:text="${errorMsg}"></div>
+  <div th:if="${logoutMsg}" class="msg success" th:text="${logoutMsg}"></div>
+  <div th:if="${param.registered}" class="msg success">Account created — please sign in.</div>
 
-    <div th:if="${errorMsg}"         class="msg-error"   th:text="${errorMsg}"></div>
-    <div th:if="${logoutMsg}"        class="msg-success"  th:text="${logoutMsg}"></div>
-    <div th:if="${param.registered}" class="msg-success">Registered. Please log in.</div>
+  <form th:action="@{/login}" method="post">
+    <label for="username">Username</label>
+    <input id="username" name="username" type="text" required autofocus/>
 
-    <form method="post" th:action="@{/login}">
-      <label>Username</label>
-      <input type="text" name="username" required autofocus>
-      <label>Password</label>
-      <input type="password" name="password" required>
-      <button type="submit" class="btn">Sign In</button>
-    </form>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" required/>
 
-    <a href="/register" class="link">Don't have an account? Register</a>
-  </div>
+    <button type="submit">Sign in</button>
+  </form>
+
+  <p class="footer">No account? <a th:href="@{/register}">Register</a></p>
+</div>
 </body>
 </html>

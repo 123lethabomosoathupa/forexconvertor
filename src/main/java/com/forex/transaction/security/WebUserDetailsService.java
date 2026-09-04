@@ -10,8 +10,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * Backs the web UI's session-based form login (login.html / register.html).
- * This is separate from JwtService/JwtAuthenticationFilter, which still
- * handles the stateless /api/v1/** endpoints independently.
+ * Separate from JwtService/JwtAuthenticationFilter which handles /api/v1/**.
  */
 @Service
 @RequiredArgsConstructor

@@ -18,11 +18,8 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Reads the Bearer token, validates it, and populates the SecurityContext
- * with a ForexUserPrincipal carrying userId + email.
- *
- * No UserDetailsService needed — this service doesn't have a users collection.
- * Everything we need is already in the JWT claims.
+ * Only intercepts /api/v1/** requests.
+ * Web UI requests use Spring Security's form login instead.
  */
 @Slf4j
 @Component
@@ -30,6 +27,12 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        // Only apply this filter to the API path
+        return !request.getRequestURI().startsWith("/api/");
+    }
 
     @Override
     protected void doFilterInternal(
@@ -54,18 +57,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String email  = jwtService.extractUsername(jwt);
                 Long   userId = jwtService.extractUserId(jwt);
 
-                // Custom principal carries both fields — no DB lookup required
                 ForexUserPrincipal principal = new ForexUserPrincipal(userId, email);
 
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
-                                principal,
-                                null,
+                                principal, null,
                                 List.of(new SimpleGrantedAuthority("ROLE_USER"))
                         );
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(auth);
-                log.debug("Authenticated userId={} email={}", userId, email);
+                log.debug("JWT auth: userId={} email={}", userId, email);
             }
         } catch (Exception e) {
             log.warn("JWT processing failed: {}", e.getMessage());

@@ -1,7 +1,30 @@
+# Maven build output
 target/
 *.jar
-*.class
-.DS_Store
-*.iml
+*.war
+*.ear
+
+# IDE
 .idea/
-nbproject/private/
+*.iml
+.vscode/
+*.classpath
+*.project
+*.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets — never commit these
+*.env
+.env*
+application-local.properties
+application-secrets.properties
+
+# Logs
+*.log
+logs/
+
+# Spring Boot devtools restart file
+.spring-boot-devtools.properties

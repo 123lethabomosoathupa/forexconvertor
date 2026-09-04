@@ -12,10 +12,8 @@ import java.util.Date;
 import java.util.function.Function;
 
 /**
- * Validates JWTs issued by the Auth Service.
- * Uses the same secret — in production, share via environment variable or Vault.
- *
- * This service does NOT generate tokens — that's the Auth Service's job.
+ * Validates JWTs issued by an external Auth Service.
+ * Used only by the stateless /api/v1/** filter chain.
  */
 @Slf4j
 @Service
@@ -29,13 +27,12 @@ public class JwtService {
     }
 
     public Long extractUserId(String token) {
-        // Auth Service embeds userId as a custom claim
         return extractClaim(token, claims -> claims.get("userId", Long.class));
     }
 
     public boolean isTokenValid(String token) {
         try {
-            extractAllClaims(token);    // throws if expired or tampered
+            extractAllClaims(token);
             return !isExpired(token);
         } catch (JwtException e) {
             log.warn("Invalid JWT: {}", e.getMessage());
@@ -60,6 +57,6 @@ public class JwtService {
     }
 
     private SecretKey signingKey() {
-    return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
-}
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+    }
 }

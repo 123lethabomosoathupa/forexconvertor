@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserRepository userRepository;
+    private final UserRepository  userRepository;
     private final PasswordEncoder passwordEncoder;
 
     @GetMapping("/login")
@@ -23,12 +23,8 @@ public class AuthController {
             @RequestParam(required = false) String logout,
             Model model
     ) {
-        if (error != null) {
-            model.addAttribute("errorMsg", "Invalid username or password.");
-        }
-        if (logout != null) {
-            model.addAttribute("logoutMsg", "You have been logged out.");
-        }
+        if (error   != null) model.addAttribute("errorMsg",  "Invalid username or password.");
+        if (logout  != null) model.addAttribute("logoutMsg", "You have been logged out.");
         return "login";
     }
 
@@ -48,9 +44,10 @@ public class AuthController {
             return "register";
         }
 
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password));
+        User user = User.builder()
+                .username(username)
+                .password(passwordEncoder.encode(password))
+                .build();
         userRepository.save(user);
 
         return "redirect:/login?registered";

@@ -10,24 +10,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-/**
- * MongoDB document representing one currency conversion event.
- *
- * Collection: "transactions"
- *
- * Key design decisions:
- *  - id is a MongoDB ObjectId (String) — no BIGSERIAL, no sequences
- *  - userId + userEmail are stored directly from the JWT (no JOIN to auth DB)
- *  - Compound indexes mirror the most common query patterns
- *  - BigDecimal is stored as Decimal128 by Spring Data MongoDB automatically
- */
 @Document(collection = "transactions")
 @CompoundIndexes({
-    // Most common: a user's history sorted newest first
     @CompoundIndex(name = "idx_user_date",     def = "{'userId': 1, 'createdAt': -1}"),
-    // Reporting: group or filter by currency pair
     @CompoundIndex(name = "idx_currency_pair", def = "{'fromCurrency': 1, 'toCurrency': 1}"),
-    // Admin: filter by status + date
     @CompoundIndex(name = "idx_status_date",   def = "{'status': 1, 'createdAt': -1}")
 })
 @Getter
@@ -38,38 +24,28 @@ import java.time.Instant;
 public class Transaction {
 
     @Id
-    private String id;                  // MongoDB ObjectId — e.g. "665f3a2b1c4e7d0012ab34cd"
+    private String id;
 
-    // ── User identity (from JWT claims) ───────────────────────────────────────
-
+    // User identity — stored from session (web) or JWT (API)
     @Indexed
-    private Long userId;                // numeric id from Auth Service JWT
+    private Long userId;
+    private String userEmail;
 
-    private String userEmail;           // stored for audit readability without a JOIN
-
-    // ── Conversion details ─────────────────────────────────────────────────────
-
-    private String fromCurrency;        // ISO 4217 — e.g. "USD"
-    private String toCurrency;          // ISO 4217 — e.g. "ZAR"
-    private BigDecimal sourceAmount;    // what the user submitted
-    private BigDecimal convertedAmount; // sourceAmount * exchangeRate
-    private BigDecimal exchangeRate;    // rate at the moment of conversion — immutable after save
-
-    // ── Status ─────────────────────────────────────────────────────────────────
+    private String fromCurrency;
+    private String toCurrency;
+    private BigDecimal sourceAmount;
+    private BigDecimal convertedAmount;
+    private BigDecimal exchangeRate;
 
     @Builder.Default
     private Status status = Status.COMPLETED;
-
-    // ── Audit ──────────────────────────────────────────────────────────────────
 
     @Indexed
     @Builder.Default
     private Instant createdAt = Instant.now();
 
-    private String ipAddress;           // for fraud detection — supports IPv6
-    private String notes;               // optional free-text (e.g. "Client invoice #42")
-
-    // ── Enum ───────────────────────────────────────────────────────────────────
+    private String ipAddress;
+    private String notes;
 
     public enum Status { COMPLETED, FAILED, PENDING }
 }

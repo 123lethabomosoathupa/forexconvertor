@@ -1,211 +1,113 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Forex — Alerts</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Alerts — Forex App</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      min-height: 100vh;
-      background: radial-gradient(circle at 50% 0%, #f3eefa 0%, #faf8fd 50%, #f3eefa 100%);
-      font-family: 'Poppins', 'Segoe UI', sans-serif; padding: 30px 20px;
-    }
-    .page { max-width: 900px; margin: 0 auto; }
-    .top-bar { display: flex; justify-content: space-between;
-               align-items: center; margin-bottom: 24px; }
-    h1 { color: #3f1d61; font-size: 1.8rem; font-weight: 700; }
-    .nav-link { color: #5b2c86; text-decoration: none; font-size: 0.9rem;
-                border: 1px solid #5b2c86; border-radius: 20px; padding: 6px 14px;
-                font-weight: 600; transition: background 0.2s, color 0.2s; }
-    .nav-link:hover { background: #5b2c86; color: #fff; }
-    .card { background: #ffffff; border-radius: 14px; padding: 24px;
-            border: 1px solid #ece3f8; margin-bottom: 20px;
-            box-shadow: 0 4px 18px rgba(91,44,134,0.06); }
-    .card-title { color: #3f1d61; font-size: 1rem; font-weight: bold;
-                  margin-bottom: 16px; }
-    .edit-card { background: #faf5ff; border-radius: 14px; padding: 24px;
-                 border: 1px solid #c9a6e8; margin-bottom: 20px;
-                 box-shadow: 0 4px 18px rgba(91,44,134,0.1); }
-    .edit-card .card-title { color: #5b2c86; }
-    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
-    .field { display: flex; flex-direction: column; flex: 1; min-width: 110px; }
-    label { color: #6b6478; font-size: 0.78rem; text-transform: uppercase;
-            letter-spacing: 0.05em; margin-bottom: 6px; }
-    input, select { padding: 10px 12px; border-radius: 10px; border: 1px solid #ddd2ef;
-                    background: #faf8fd; color: #1f1b2e;
-                    font-size: 0.95rem; outline: none; }
-    input:focus, select:focus { border-color: #8b5fbf; background: #ffffff; }
-    .btn { padding: 10px 20px; background: #5b2c86; color: #fff; border: none;
-           border-radius: 10px; font-size: 0.95rem; font-weight: bold; cursor: pointer;
-           transition: background 0.2s; }
-    .btn:hover { background: #3f1d61; }
-    .btn-edit { padding: 5px 12px; background: transparent; color: #5b2c86;
-                border: 1px solid #5b2c86; border-radius: 20px;
-                cursor: pointer; font-size: 0.82rem; text-decoration: none;
-                transition: background 0.2s, color 0.2s; }
-    .btn-edit:hover { background: #5b2c86; color: #fff; }
-    .btn-del  { padding: 5px 12px; background: transparent; color: #dc2626;
-                border: 1px solid #dc2626; border-radius: 20px;
-                cursor: pointer; font-size: 0.82rem; transition: background 0.2s, color 0.2s; }
-    .btn-del:hover { background: #dc2626; color: #fff; }
-    .btn-cancel { padding: 10px 20px; background: #ece3f8; color: #3f1d61;
-                  border: none; border-radius: 10px; font-size: 0.95rem; cursor: pointer;
-                  transition: background 0.2s; }
-    .btn-cancel:hover { background: #ddc8f5; }
-    .btn-save { padding: 10px 20px; background: #15803d; color: #fff;
-                border: none; border-radius: 10px; font-size: 0.95rem;
-                font-weight: bold; cursor: pointer; transition: background 0.2s; }
-    .btn-save:hover { background: #0f5c2c; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #111; }
+    nav { background: #111; color: #fff; padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; }
+    nav a { color: #ccc; text-decoration: none; margin-left: 20px; font-size: 14px; }
+    nav a:hover { color: #fff; }
+    .brand { font-weight: 600; font-size: 16px; color: #fff; }
+    main { max-width: 960px; margin: 32px auto; padding: 0 16px; }
+    h1 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+    .subtitle { font-size: 14px; color: #777; margin-bottom: 24px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 1px 8px rgba(0,0,0,.07); }
+    .card h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+    label { display: block; font-size: 13px; color: #555; margin-bottom: 4px; margin-top: 14px; }
+    input, select { width: 100%; padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+    button { width: 100%; margin-top: 20px; padding: 11px; background: #111; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
+    button:hover { background: #333; }
     table { width: 100%; border-collapse: collapse; }
-    th { background: #f3eefa; color: #5b2c86; padding: 10px 14px;
-         text-align: left; font-size: 0.82rem; text-transform: uppercase; }
-    td { padding: 10px 14px; color: #1f1b2e; font-size: 0.9rem;
-         border-bottom: 1px solid #ece3f8; vertical-align: middle; }
-    tr:last-child td { border-bottom: none; }
-    .active    { color: #15803d; font-size: 0.82rem; font-weight: 600; }
-    .triggered { color: #8b85a0; font-size: 0.82rem; }
-    .empty { color: #b3aac4; padding: 24px; text-align: center; }
-    .msg-error { color: #b91c1c; background: #fdecec; padding: 10px 14px;
-                 border-radius: 8px; margin-bottom: 16px; font-size: 0.9rem; }
-    .action-btns { display: flex; gap: 8px; }
+    th { text-align: left; padding: 10px 12px; font-size: 12px; text-transform: uppercase; color: #777; letter-spacing: .04em; border-bottom: 1px solid #f0f0f0; }
+    td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 500; }
+    .active  { background: #dcfce7; color: #166534; }
+    .triggered { background: #fef9c3; color: #854d0e; }
+    .empty { text-align: center; color: #999; padding: 24px; font-size: 14px; }
   </style>
 </head>
 <body>
-  <div class="page">
-    <div class="top-bar">
-      <h1>Rate Alerts</h1>
-      <a href="/converter" class="nav-link">Converter</a>
-    </div>
 
-    <div th:if="${error}" class="msg-error" th:text="${error}"></div>
+<nav>
+  <span class="brand">Forex App</span>
+  <div>
+    <a th:href="@{/dashboard}">Dashboard</a>
+    <a th:href="@{/converter}">Convert</a>
+    <a th:href="@{/history}">History</a>
+    <a th:href="@{/logout}">Logout</a>
+  </div>
+</nav>
 
-    <!-- Edit form — only shown when editing an alert -->
-    <div class="edit-card" th:if="${editAlert != null}">
-      <p class="card-title">
-        ✏️ Editing Alert #<span th:text="${editAlert.id}"></span>
-      </p>
-      <form method="post"
-            th:action="@{/alerts/{id}/edit(id=${editAlert.id})}">
-        <div class="row">
-          <div class="field">
+<main>
+  <h1>Rate Alerts</h1>
+  <p class="subtitle">Get notified when a currency pair hits your target rate.</p>
+
+  <div class="grid">
+
+    <!-- Create alert form -->
+    <div class="card">
+      <h2>New Alert</h2>
+      <form th:action="@{/alerts}" method="post">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div>
             <label>From</label>
-            <select name="from">
-              <option th:each="c : ${currencies}" th:value="${c}" th:text="${c}"
-                      th:selected="${c == editAlert.fromCurrency}"></option>
+            <select name="fromCurrency">
+              <option>USD</option><option>EUR</option><option>GBP</option>
+              <option>ZAR</option><option>JPY</option><option>AUD</option>
+              <option>CAD</option><option>CHF</option><option>CNY</option>
             </select>
           </div>
-          <div class="field">
+          <div>
             <label>To</label>
-            <select name="to">
-              <option th:each="c : ${currencies}" th:value="${c}" th:text="${c}"
-                      th:selected="${c == editAlert.toCurrency}"></option>
+            <select name="toCurrency">
+              <option>ZAR</option><option>USD</option><option>EUR</option>
+              <option>GBP</option><option>JPY</option><option>AUD</option>
+              <option>CAD</option><option>CHF</option><option>CNY</option>
             </select>
           </div>
-          <div class="field">
-            <label>Target Rate</label>
-            <input type="number" name="targetRate" step="0.0001"
-                   th:value="${editAlert.targetRate}" required>
-          </div>
-          <div class="field">
-            <label>Direction</label>
-            <select name="direction">
-              <option value="ABOVE"
-                      th:selected="${editAlert.direction == 'ABOVE'}">
-                Rate goes ABOVE
-              </option>
-              <option value="BELOW"
-                      th:selected="${editAlert.direction == 'BELOW'}">
-                Rate goes BELOW
-              </option>
-            </select>
-          </div>
-          <button type="submit" class="btn-save">Save</button>
-          <a href="/alerts" class="btn-cancel"
-             style="text-decoration:none; display:inline-block; line-height:1.4;">
-            Cancel
-          </a>
         </div>
+
+        <label>Target Rate</label>
+        <input name="targetRate" type="number" step="0.0001" min="0.0001" placeholder="19.00" required/>
+
+        <label>Direction</label>
+        <select name="direction">
+          <option value="ABOVE">Alert when rate goes ABOVE target</option>
+          <option value="BELOW">Alert when rate goes BELOW target</option>
+        </select>
+
+        <button type="submit">Create Alert</button>
       </form>
     </div>
 
-    <!-- Create new alert form -->
+    <!-- Existing alerts -->
     <div class="card">
-      <p class="card-title">Set New Alert</p>
-      <form method="post" th:action="@{/alerts}">
-        <div class="row">
-          <div class="field">
-            <label>From</label>
-            <select name="from">
-              <option th:each="c : ${currencies}" th:value="${c}" th:text="${c}"></option>
-            </select>
-          </div>
-          <div class="field">
-            <label>To</label>
-            <select name="to">
-              <option th:each="c : ${currencies}" th:value="${c}" th:text="${c}"
-                      th:selected="${c == 'ZAR'}"></option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Target Rate</label>
-            <input type="number" name="targetRate" step="0.0001"
-                   placeholder="e.g. 18.50" required>
-          </div>
-          <div class="field">
-            <label>Direction</label>
-            <select name="direction">
-              <option value="ABOVE">Rate goes ABOVE</option>
-              <option value="BELOW">Rate goes BELOW</option>
-            </select>
-          </div>
-          <button type="submit" class="btn">Set Alert</button>
-        </div>
-      </form>
-    </div>
-
-    <!-- Alerts table -->
-    <div class="card">
-      <p class="card-title">Your Alerts</p>
-      <table th:if="${alerts != null and !#lists.isEmpty(alerts)}">
+      <h2>Your Alerts</h2>
+      <table th:if="${not #lists.isEmpty(alerts)}">
         <thead>
-          <tr>
-            <th>#</th>
-            <th>Pair</th>
-            <th>Target Rate</th>
-            <th>Direction</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
+          <tr><th>Pair</th><th>Target</th><th>Direction</th><th>Status</th></tr>
         </thead>
         <tbody>
-          <tr th:each="alert : ${alerts}">
-            <td th:text="${alert.id}"></td>
-            <td th:text="${alert.fromCurrency + '/' + alert.toCurrency}"></td>
-            <td th:text="${alert.targetRate}"></td>
-            <td th:text="${alert.direction}"></td>
+          <tr th:each="a : ${alerts}">
+            <td th:text="${a.fromCurrency + '/' + a.toCurrency}"></td>
+            <td th:text="${a.targetRate}"></td>
+            <td th:text="${a.direction}"></td>
             <td>
-              <span th:if="${!alert.triggered}" class="active">● Active</span>
-              <span th:if="${alert.triggered}"  class="triggered">✓ Triggered</span>
-            </td>
-            <td>
-              <div class="action-btns">
-                <!-- Edit button -->
-                <a th:href="@{/alerts/{id}/edit(id=${alert.id})}"
-                   class="btn-edit">Edit</a>
-                <!-- Delete button -->
-                <form method="post"
-                      th:action="@{/alerts/{id}/delete(id=${alert.id})}">
-                  <button type="submit" class="btn-del">Delete</button>
-                </form>
-              </div>
+              <span class="badge" th:classappend="${a.triggered ? 'triggered' : 'active'}"
+                    th:text="${a.triggered ? 'Triggered' : 'Active'}"></span>
             </td>
           </tr>
         </tbody>
       </table>
-      <p th:if="${alerts == null or #lists.isEmpty(alerts)}" class="empty">
-        No alerts yet. Set one above.
-      </p>
+      <p class="empty" th:if="${#lists.isEmpty(alerts)}">No alerts yet.</p>
     </div>
+
   </div>
+</main>
+
 </body>
 </html>

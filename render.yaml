@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: forex-app
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    # Render injects PORT automatically — Spring reads it via ${PORT:8080}
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATA_MONGODB_URI
+        sync: false          # set manually in Render dashboard — never commit secrets
+      - key: JWT_SECRET
+        sync: false          # set manually in Render dashboard
+    healthCheckPath: /actuator/health
+    autoDeploy: true
