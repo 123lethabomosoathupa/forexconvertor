@@ -4,55 +4,35 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Alerts — Forex App</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #111; }
-    nav { background: #111; color: #fff; padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; }
-    nav a { color: #ccc; text-decoration: none; margin-left: 20px; font-size: 14px; }
-    nav a:hover { color: #fff; }
-    .brand { font-weight: 600; font-size: 16px; color: #fff; }
-    main { max-width: 960px; margin: 32px auto; padding: 0 16px; }
-    h1 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
-    .subtitle { font-size: 14px; color: #777; margin-bottom: 24px; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    .card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 1px 8px rgba(0,0,0,.07); }
-    .card h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
-    label { display: block; font-size: 13px; color: #555; margin-bottom: 4px; margin-top: 14px; }
-    input, select { width: 100%; padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
-    button { width: 100%; margin-top: 20px; padding: 11px; background: #111; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
-    button:hover { background: #333; }
-    table { width: 100%; border-collapse: collapse; }
-    th { text-align: left; padding: 10px 12px; font-size: 12px; text-transform: uppercase; color: #777; letter-spacing: .04em; border-bottom: 1px solid #f0f0f0; }
-    td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
-    .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 500; }
-    .active  { background: #dcfce7; color: #166534; }
-    .triggered { background: #fef9c3; color: #854d0e; }
-    .empty { text-align: center; color: #999; padding: 24px; font-size: 14px; }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/theme.css}"/>
 </head>
 <body>
 
-<nav>
-  <span class="brand">Forex App</span>
-  <div>
-    <a th:href="@{/dashboard}">Dashboard</a>
-    <a th:href="@{/converter}">Convert</a>
-    <a th:href="@{/history}">History</a>
-    <a th:href="@{/logout}">Logout</a>
+<nav class="appnav">
+  <span class="brand"><span class="dot"></span>Forex App</span>
+  <div class="links">
+    <a th:href="@{/dashboard}" class="navlink">Dashboard</a>
+    <a th:href="@{/converter}" class="navlink">Convert</a>
+    <a th:href="@{/history}" class="navlink">History</a>
+    <a th:href="@{/logout}" class="navlink">Logout</a>
   </div>
 </nav>
 
-<main>
-  <h1>Rate Alerts</h1>
-  <p class="subtitle">Get notified when a currency pair hits your target rate.</p>
+<main class="page">
+  <div class="page-head">
+    <h1>Rate Alerts</h1>
+    <p class="subtitle">Get notified when a currency pair hits your target rate.</p>
+  </div>
 
-  <div class="grid">
+  <div class="grid-2">
 
     <!-- Create alert form -->
     <div class="card">
       <h2>New Alert</h2>
       <form th:action="@{/alerts}" method="post">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="row-2">
           <div>
             <label>From</label>
             <select name="fromCurrency">
@@ -80,7 +60,7 @@
           <option value="BELOW">Alert when rate goes BELOW target</option>
         </select>
 
-        <button type="submit">Create Alert</button>
+        <button type="submit" class="full">Create alert</button>
       </form>
     </div>
 

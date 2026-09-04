@@ -4,48 +4,32 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Dashboard — Forex App</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #111; }
-    nav { background: #111; color: #fff; padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; }
-    nav a { color: #ccc; text-decoration: none; margin-left: 20px; font-size: 14px; }
-    nav a:hover { color: #fff; }
-    .brand { font-weight: 600; font-size: 16px; color: #fff; }
-    main { max-width: 960px; margin: 32px auto; padding: 0 16px; }
-    h1 { font-size: 22px; font-weight: 600; margin-bottom: 24px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
-    .stat { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 6px rgba(0,0,0,.06); }
-    .stat-label { font-size: 12px; color: #777; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
-    .stat-value { font-size: 24px; font-weight: 600; }
-    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,.06); }
-    th { background: #f8f8f8; text-align: left; padding: 12px 16px; font-size: 12px; text-transform: uppercase; color: #777; letter-spacing: .04em; }
-    td { padding: 12px 16px; border-top: 1px solid #f0f0f0; font-size: 14px; }
-    .section-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
-    .btn { display: inline-block; padding: 10px 18px; background: #111; color: #fff; text-decoration: none; border-radius: 8px; font-size: 13px; font-weight: 500; }
-    .btn:hover { background: #333; }
-    .btn-outline { background: #fff; color: #111; border: 1px solid #ddd; }
-    .btn-outline:hover { background: #f5f5f5; }
-    .actions { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/theme.css}"/>
 </head>
 <body>
 
-<nav>
-  <span class="brand">Forex App</span>
-  <div>
-    <span sec:authentication="name" style="color:#ccc;font-size:14px;margin-right:8px"></span>
-    <a th:href="@{/converter}">Convert</a>
-    <a th:href="@{/history}">History</a>
-    <a th:href="@{/alerts}">Alerts</a>
-    <a th:href="@{/logout}">Logout</a>
+<nav class="appnav">
+  <span class="brand"><span class="dot"></span>Forex App</span>
+  <div class="links">
+    <span class="user-pill" sec:authentication="name"></span>
+    <a th:href="@{/dashboard}" class="navlink current">Dashboard</a>
+    <a th:href="@{/converter}" class="navlink">Convert</a>
+    <a th:href="@{/history}" class="navlink">History</a>
+    <a th:href="@{/alerts}" class="navlink">Alerts</a>
+    <a th:href="@{/logout}" class="navlink">Logout</a>
   </div>
 </nav>
 
-<main>
-  <h1>Dashboard</h1>
+<main class="page">
+  <div class="page-head">
+    <h1>Dashboard</h1>
+    <p class="subtitle">Your conversion activity at a glance.</p>
+  </div>
 
-  <div class="grid">
-    <div class="stat">
+  <div class="stat-grid">
+    <div class="stat hero">
       <div class="stat-label">Total Conversions</div>
       <div class="stat-value" th:text="${stats.totalTransactions()}">0</div>
     </div>
@@ -59,42 +43,44 @@
     </div>
     <div class="stat">
       <div class="stat-label">Last Transaction</div>
-      <div class="stat-value" style="font-size:14px"
+      <div class="stat-value" style="font-size:16px"
            th:text="${stats.lastTransactionAt() != null ?
                       #temporals.format(stats.lastTransactionAt(), 'dd MMM yyyy') : '—'}">—</div>
     </div>
   </div>
 
   <div class="actions">
-    <a th:href="@{/converter}" class="btn">New Conversion</a>
-    <a th:href="@{/history}"   class="btn btn-outline">View All History</a>
-    <a th:href="@{/alerts}"    class="btn btn-outline">Manage Alerts</a>
+    <a th:href="@{/converter}" class="btn">New conversion</a>
+    <a th:href="@{/history}"   class="btn btn-outline">View all history</a>
+    <a th:href="@{/alerts}"    class="btn btn-outline">Manage alerts</a>
   </div>
 
   <p class="section-title">Recent Transactions</p>
-  <table>
-    <thead>
-      <tr>
-        <th>Date</th><th>From</th><th>To</th>
-        <th>Amount</th><th>Converted</th><th>Rate</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr th:each="tx : ${recent}">
-        <td th:text="${#temporals.format(tx.createdAt(), 'dd MMM HH:mm')}"></td>
-        <td th:text="${tx.fromCurrency()}"></td>
-        <td th:text="${tx.toCurrency()}"></td>
-        <td th:text="${#numbers.formatDecimal(tx.sourceAmount(), 0, 2)}"></td>
-        <td th:text="${#numbers.formatDecimal(tx.convertedAmount(), 0, 4)}"></td>
-        <td th:text="${#numbers.formatDecimal(tx.exchangeRate(), 1, 6)}"></td>
-      </tr>
-      <tr th:if="${#lists.isEmpty(recent)}">
-        <td colspan="6" style="text-align:center;color:#999;padding:24px">
-          No transactions yet — <a th:href="@{/converter}">make your first conversion!</a>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th><th>From</th><th>To</th>
+          <th>Amount</th><th>Converted</th><th>Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="tx : ${recent}">
+          <td th:text="${#temporals.format(tx.createdAt(), 'dd MMM HH:mm')}"></td>
+          <td th:text="${tx.fromCurrency()}"></td>
+          <td th:text="${tx.toCurrency()}"></td>
+          <td th:text="${#numbers.formatDecimal(tx.sourceAmount(), 0, 2)}"></td>
+          <td th:text="${#numbers.formatDecimal(tx.convertedAmount(), 0, 4)}"></td>
+          <td th:text="${#numbers.formatDecimal(tx.exchangeRate(), 1, 6)}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(recent)}">
+          <td colspan="6" class="empty">
+            No transactions yet — <a th:href="@{/converter}" style="color:var(--brand);font-weight:700">make your first conversion</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </main>
 
 </body>

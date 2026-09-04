@@ -4,46 +4,31 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Convert — Forex App</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #111; }
-    nav { background: #111; color: #fff; padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; }
-    nav a { color: #ccc; text-decoration: none; margin-left: 20px; font-size: 14px; }
-    nav a:hover { color: #fff; }
-    .brand { font-weight: 600; font-size: 16px; color: #fff; }
-    main { max-width: 520px; margin: 40px auto; padding: 0 16px; }
-    h1 { font-size: 22px; font-weight: 600; margin-bottom: 24px; }
-    .card { background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 1px 8px rgba(0,0,0,.07); }
-    label { display: block; font-size: 13px; color: #555; margin-bottom: 4px; margin-top: 16px; }
-    input, select { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background: #fff; }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    button { width: 100%; margin-top: 24px; padding: 12px; background: #111; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
-    button:hover { background: #333; }
-    .live-rate { font-size: 12px; color: #777; margin-top: 6px; min-height: 16px; }
-    .live-rate span { color: #059669; font-weight: 500; }
-    .result { margin-top: 24px; padding: 20px; background: #f0fdf4; border-radius: 10px; }
-    .result-main { font-size: 22px; font-weight: 600; }
-    .result-sub { font-size: 13px; color: #555; margin-top: 4px; }
-    .back { display: inline-block; margin-top: 20px; font-size: 13px; color: #777; text-decoration: none; }
-    .back:hover { color: #111; }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/theme.css}"/>
 </head>
 <body>
 
-<nav>
-  <span class="brand">Forex App</span>
-  <div>
-    <a th:href="@{/dashboard}">Dashboard</a>
-    <a th:href="@{/history}">History</a>
-    <a th:href="@{/logout}">Logout</a>
+<nav class="appnav">
+  <span class="brand"><span class="dot"></span>Forex App</span>
+  <div class="links">
+    <a th:href="@{/dashboard}" class="navlink">Dashboard</a>
+    <a th:href="@{/converter}" class="navlink current">Convert</a>
+    <a th:href="@{/history}" class="navlink">History</a>
+    <a th:href="@{/logout}" class="navlink">Logout</a>
   </div>
 </nav>
 
-<main>
-  <h1>Currency Converter</h1>
+<main class="page narrow">
+  <div class="page-head">
+    <h1>Currency Converter</h1>
+    <p class="subtitle">Live rates, saved automatically to your history.</p>
+  </div>
+
   <div class="card">
     <form th:action="@{/converter}" method="post">
-      <div class="row">
+      <div class="row-2">
         <div>
           <label for="fromCurrency">From</label>
           <select id="fromCurrency" name="fromCurrency" onchange="fetchRate()">
@@ -74,10 +59,10 @@
       <label for="notes">Notes (optional)</label>
       <input id="notes" name="notes" type="text" placeholder="e.g. Client payment"/>
 
-      <button type="submit">Convert &amp; Save</button>
+      <button type="submit" class="full">Convert &amp; save</button>
     </form>
 
-    <div th:if="${result}" class="result">
+    <div th:if="${result}" class="result-panel">
       <div class="result-main">
         <span th:text="${#numbers.formatDecimal(result.sourceAmount(), 0, 2)}"></span>
         <span th:text="${result.fromCurrency()}"></span>
@@ -94,7 +79,7 @@
     </div>
   </div>
 
-  <a th:href="@{/dashboard}" class="back">← Back to dashboard</a>
+  <a th:href="@{/dashboard}" class="btn-ghost" style="display:inline-block;margin-top:18px">← Back to dashboard</a>
 </main>
 
 <script>

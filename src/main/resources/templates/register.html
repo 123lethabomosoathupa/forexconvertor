@@ -4,37 +4,31 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Register — Forex App</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #f5f5f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-    .card { background: #fff; border-radius: 12px; padding: 40px; width: 100%; max-width: 380px; box-shadow: 0 2px 16px rgba(0,0,0,.08); }
-    h1 { font-size: 22px; font-weight: 600; margin-bottom: 24px; }
-    label { display: block; font-size: 13px; color: #555; margin-bottom: 4px; margin-top: 16px; }
-    input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
-    button { width: 100%; margin-top: 24px; padding: 11px; background: #111; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; }
-    button:hover { background: #333; }
-    .msg { margin-top: 14px; font-size: 13px; padding: 10px 12px; border-radius: 6px; }
-    .error { background: #fef2f2; color: #991b1b; }
-    .footer { margin-top: 20px; text-align: center; font-size: 13px; color: #777; }
-    a { color: #111; }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/theme.css}"/>
 </head>
 <body>
-<div class="card">
-  <h1>Create account</h1>
-  <div th:if="${errorMsg}" class="msg error" th:text="${errorMsg}"></div>
+<div class="auth-shell">
+  <div class="auth-card">
+    <div class="mark"><span class="dot"></span><span>FOREX APP</span></div>
+    <h1>Create your account</h1>
+    <p class="lede">Track rates and conversions in one place.</p>
 
-  <form th:action="@{/register}" method="post">
-    <label for="username">Username</label>
-    <input id="username" name="username" type="text" required autofocus/>
+    <div th:if="${errorMsg}" class="msg error" th:text="${errorMsg}"></div>
 
-    <label for="password">Password</label>
-    <input id="password" name="password" type="password" required minlength="8"/>
+    <form th:action="@{/register}" method="post">
+      <label for="username">Username</label>
+      <input id="username" name="username" type="text" required autofocus/>
 
-    <button type="submit">Create account</button>
-  </form>
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" required minlength="8"/>
 
-  <p class="footer">Already have an account? <a th:href="@{/login}">Sign in</a></p>
+      <button type="submit" class="full">Create account</button>
+    </form>
+
+    <p class="footer-line">Already have an account? <a th:href="@{/login}">Sign in</a></p>
+  </div>
 </div>
 </body>
 </html>
